@@ -450,7 +450,7 @@ const B64 = "H4sIAAAAAAAAExSYBXdVSbNA0cFdk8A93X2qq7vqJMDF3Qd3G5zBYZDBiUPQ4O7uHiy
       const dx = ev.clientX - drag.x, dy = ev.clientY - drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
       S.az = drag.az + dx * 0.006;
-      S.targetTilt = S.tilt = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, drag.tilt + dy * 0.006)); // view from above or below the ecliptic
+      S.targetTilt = S.tilt = Math.max(0, Math.min(Math.PI, drag.tilt + dy * 0.006)); // 0 = from ecliptic north, 90° = edge-on, 180° = from the south
       S.hover = -1; tip.hidden = true; syncViews();
       if (!S.playing) frame();
       return;
@@ -467,10 +467,10 @@ const B64 = "H4sIAAAAAAAAExSYBXdVSbNA0cFdk8A93X2qq7vqJMDF3Qd3G5zBYZDBiUPQ4O7uHiy
 
   const views = { vInner: [4.5, null], vJup: [7, null], vOuter: [65, null] };
   for (const id in views) $(id).addEventListener('click', () => { S.targetScale = views[id][0]; syncViews(true, id); });
-  $('vEdge').addEventListener('click', () => { S.targetTilt = Math.abs(S.targetTilt) > 1.2 ? 0 : Math.PI / 2 - 0.02; syncViews(); });
+  $('vEdge').addEventListener('click', () => { S.targetTilt = Math.abs(S.targetTilt - Math.PI / 2) < 0.37 ? 0 : Math.PI / 2 - 0.02; syncViews(); });
   function syncViews(force, id) {
     for (const v in views) $(v).setAttribute('aria-pressed', String(id ? v === id : Math.abs(S.targetScale - views[v][0]) < 0.01));
-    $('vEdge').setAttribute('aria-pressed', String(Math.abs(S.targetTilt) > 1.2));
+    $('vEdge').setAttribute('aria-pressed', String(Math.abs(S.targetTilt - Math.PI / 2) < 0.37));
     if (!S.playing) kick();
   }
 
